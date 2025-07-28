@@ -1,21 +1,24 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useEffect } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
+import { useAppSelector, useAppDispatch } from '../../services/store';
+import { selectIngredients } from '../../services/slices/ingredientsSlice';
+import { useParams } from 'react-router-dom';
+import { getFeedById, getFeedData } from '../../services/slices/feedsSlice';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const orderData = useAppSelector(getFeedData);
+  const ingredients: TIngredient[] = useAppSelector(selectIngredients);
 
-  const ingredients: TIngredient[] = [];
+  const dispatch = useAppDispatch();
+  const { number } = useParams<{ number: string }>();
+
+  useEffect(() => {
+    if (number) {
+      dispatch(getFeedById(Number(number)));
+    }
+  }, [dispatch, number]);
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
@@ -34,16 +37,15 @@ export const OrderInfo: FC = () => {
           if (ingredient) {
             acc[item] = {
               ...ingredient,
-              count: 1
+              count: 1,
             };
           }
         } else {
           acc[item].count++;
         }
-
         return acc;
       },
-      {}
+      {} as TIngredientsWithCount
     );
 
     const total = Object.values(ingredientsInfo).reduce(
@@ -55,7 +57,7 @@ export const OrderInfo: FC = () => {
       ...orderData,
       ingredientsInfo,
       date,
-      total
+      total,
     };
   }, [orderData, ingredients]);
 
