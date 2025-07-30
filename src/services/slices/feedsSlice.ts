@@ -20,18 +20,19 @@ export const initialState: TFeedsState = {
   error: null
 };
 
-// ✅ Указываем, что возвращается TOrdersData, а аргументов нет
 export const getFeeds = createAsyncThunk<TOrdersData>(
   'feeds/getFeeds',
-  async () => getFeedsApi()
+  async () => {
+    const response = await getFeedsApi();
+    return response;
+  }
 );
 
-// ✅ Исправлено: аргумент number теперь указан корректно
 export const getFeedById = createAsyncThunk<TOrder, number>(
   'feeds/getById',
   async (number: number) => {
     const response = await getOrderByNumberApi(number);
-    return response.orders[0]; // возвращаем один заказ
+    return response.orders[0];
   }
 );
 

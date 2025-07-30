@@ -12,15 +12,14 @@ export const OrderInfo: FC = () => {
   const ingredients: TIngredient[] = useAppSelector(selectIngredients);
 
   const dispatch = useAppDispatch();
-  const { number } = useParams<{ number: string }>();
+  const { orderId } = useParams<{ orderId: string }>();
 
   useEffect(() => {
-    if (number) {
-      dispatch(getFeedById(Number(number)));
+    if (orderId) {
+      dispatch(getFeedById(Number(orderId)));
     }
-  }, [dispatch, number]);
+  }, [dispatch, orderId]);
 
-  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -37,7 +36,7 @@ export const OrderInfo: FC = () => {
           if (ingredient) {
             acc[item] = {
               ...ingredient,
-              count: 1,
+              count: 1
             };
           }
         } else {
@@ -57,7 +56,7 @@ export const OrderInfo: FC = () => {
       ...orderData,
       ingredientsInfo,
       date,
-      total,
+      total
     };
   }, [orderData, ingredients]);
 

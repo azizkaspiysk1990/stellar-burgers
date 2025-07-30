@@ -9,9 +9,9 @@ import { selectIngredients } from '../../services/slices/ingredientsSlice';
 export const BurgerIngredients: FC = () => {
   const ingredients = useAppSelector(selectIngredients);
 
-  const buns = ingredients.filter(item => item.type === 'bun');
-  const sauces = ingredients.filter(item => item.type === 'sauce');
-  const mains = ingredients.filter(item => item.type === 'main');
+  const buns = ingredients.filter((item) => item.type === 'bun');
+  const sauces = ingredients.filter((item) => item.type === 'sauce');
+  const mains = ingredients.filter((item) => item.type === 'main');
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
 
@@ -34,23 +34,22 @@ export const BurgerIngredients: FC = () => {
   }, [inViewBun, inViewSauce, inViewMain]);
 
   const handleTabClick = (val: string) => {
-  const tab = val as TTabMode;
-  setCurrentTab(tab);
-  const scrollOptions = { behavior: 'smooth' as const };
+    const tab = val as TTabMode;
+    setCurrentTab(tab);
+    const scrollOptions = { behavior: 'smooth' as const };
 
-  switch (tab) {
-    case 'bun':
-      bunTitleRef.current?.scrollIntoView(scrollOptions);
-      break;
-    case 'sauce':
-      sauceTitleRef.current?.scrollIntoView(scrollOptions);
-      break;
-    case 'main':
-      mainTitleRef.current?.scrollIntoView(scrollOptions);
-      break;
-  }
-};
-
+    switch (tab) {
+      case 'bun':
+        bunTitleRef.current?.scrollIntoView(scrollOptions);
+        break;
+      case 'sauce':
+        sauceTitleRef.current?.scrollIntoView(scrollOptions);
+        break;
+      case 'main':
+        mainTitleRef.current?.scrollIntoView(scrollOptions);
+        break;
+    }
+  };
 
   return (
     <BurgerIngredientsUI

@@ -6,14 +6,13 @@ import {
   submitOrder,
   clearOrder,
   selectOrderLoading,
-  selectOrderData,
+  selectOrderData
 } from '../../services/slices/orderSlice';
 import { getUser } from '../../services/slices/userSlice';
 import { useNavigate } from 'react-router-dom';
 import { clearConstructor } from '../../services/slices/burgerConstructor';
 
 export const BurgerConstructor: FC = () => {
-  // Изменил здесь:
   const constructorItems = useAppSelector((state) => state.burgerConstructor);
   const orderRequest = useAppSelector(selectOrderLoading);
   const orderModalData = useAppSelector(selectOrderData);
@@ -23,18 +22,26 @@ export const BurgerConstructor: FC = () => {
   const dispatch = useAppDispatch();
 
   const onOrderClick = () => {
-    if (!constructorItems.selectedBun || orderRequest) return;
+    if (!constructorItems.selectedBun) {
+      return;
+    }
+    if (constructorItems.items.length === 0) {
+      return;
+    }
+    if (orderRequest) {
+      return;
+    }
     if (!user) {
       navigate('/login');
       return;
     }
-
     const orderData: string[] = [
       constructorItems.selectedBun._id,
-      ...constructorItems.items.map((ingredient: TConstructorIngredient) => ingredient._id),
-      constructorItems.selectedBun._id,
+      ...constructorItems.items.map(
+        (ingredient: TConstructorIngredient) => ingredient._id
+      ),
+      constructorItems.selectedBun._id
     ];
-
     dispatch(submitOrder(orderData));
   };
 
@@ -45,9 +52,12 @@ export const BurgerConstructor: FC = () => {
   };
 
   const price = useMemo(() => {
-    const bunPrice = constructorItems.selectedBun ? constructorItems.selectedBun.price * 2 : 0;
+    const bunPrice = constructorItems.selectedBun
+      ? constructorItems.selectedBun.price * 2
+      : 0;
     const ingredientsPrice = constructorItems.items.reduce(
-      (sum: number, ingredient: TConstructorIngredient) => sum + ingredient.price,
+      (sum: number, ingredient: TConstructorIngredient) =>
+        sum + ingredient.price,
       0
     );
     return bunPrice + ingredientsPrice;
@@ -57,7 +67,10 @@ export const BurgerConstructor: FC = () => {
     <BurgerConstructorUI
       price={price}
       orderRequest={orderRequest}
-      constructorItems={constructorItems}
+      constructorItems={{
+        bun: constructorItems.selectedBun,
+        ingredients: constructorItems.items
+      }}
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
       closeOrderModal={closeOrderModal}

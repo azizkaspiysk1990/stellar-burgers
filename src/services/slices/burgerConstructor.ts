@@ -9,7 +9,7 @@ type ConstructorState = {
 
 const initialState: ConstructorState = {
   selectedBun: null,
-  items: [],
+  items: []
 };
 
 const burgerConstructorSlice = createSlice({
@@ -18,7 +18,7 @@ const burgerConstructorSlice = createSlice({
   reducers: {
     addItem: {
       prepare: (ingredient: TIngredient) => ({
-        payload: { ...ingredient, id: uuidv4() },
+        payload: { ...ingredient, id: uuidv4() }
       }),
       reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
         if (action.payload.type === 'bun') {
@@ -26,11 +26,11 @@ const burgerConstructorSlice = createSlice({
         } else {
           state.items.push(action.payload);
         }
-      },
+      }
     },
 
     removeItem(state, action: PayloadAction<string>) {
-      state.items = state.items.filter(item => item.id !== action.payload);
+      state.items = state.items.filter((item) => item.id !== action.payload);
     },
 
     reorderItem(
@@ -50,19 +50,15 @@ const burgerConstructorSlice = createSlice({
     clearConstructor(state) {
       state.selectedBun = null;
       state.items = [];
-    },
+    }
   },
   selectors: {
-    getAllConstructorData: (state) => state,
+    getAllConstructorData: (state) => state
   }
 });
 
-export const {
-  addItem,
-  removeItem,
-  reorderItem,
-  clearConstructor,
-} = burgerConstructorSlice.actions;
+export const { addItem, removeItem, reorderItem, clearConstructor } =
+  burgerConstructorSlice.actions;
 
 export const { getAllConstructorData } = burgerConstructorSlice.selectors;
 

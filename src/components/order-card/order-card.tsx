@@ -13,22 +13,34 @@ export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
   const ingredients: TIngredient[] = useAppSelector(selectIngredients);
 
   const orderInfo = useMemo(() => {
-    if (!ingredients.length) return null;
+    if (!ingredients.length) {
+      const date = new Date(order.createdAt);
+      return {
+        ...order,
+        ingredientsInfo: [],
+        ingredientsToShow: [],
+        remains: 0,
+        total: 0,
+        date
+      };
+    }
 
-    // Получаем детали ингредиентов заказа
-    const ingredientsInfo = order.ingredients.reduce<TIngredient[]>((acc, itemId) => {
-      const ingredient = ingredients.find((ing) => ing._id === itemId);
-      if (ingredient) acc.push(ingredient);
-      return acc;
-    }, []);
+    const ingredientsInfo = order.ingredients.reduce<TIngredient[]>(
+      (acc, itemId) => {
+        const ingredient = ingredients.find((ing) => ing._id === itemId);
+        if (ingredient) acc.push(ingredient);
+        return acc;
+      },
+      []
+    );
 
-    // Считаем общую стоимость заказа
-    const total = ingredientsInfo.reduce((sum, ingredient) => sum + ingredient.price, 0);
+    const total = ingredientsInfo.reduce(
+      (sum, ingredient) => sum + ingredient.price,
+      0
+    );
 
-    // Берём до maxIngredients ингредиентов для показа
     const ingredientsToShow = ingredientsInfo.slice(0, maxIngredients);
 
-    // Считаем сколько ингредиентов скрыто
     const remains = Math.max(0, ingredientsInfo.length - maxIngredients);
 
     const date = new Date(order.createdAt);
@@ -39,11 +51,9 @@ export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
       ingredientsToShow,
       remains,
       total,
-      date,
+      date
     };
   }, [order, ingredients]);
-
-  if (!orderInfo) return null;
 
   return (
     <OrderCardUI

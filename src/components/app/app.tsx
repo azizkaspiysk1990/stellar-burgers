@@ -13,42 +13,27 @@ import {
   Profile,
   ProfileOrders,
   Register,
-  ResetPassword,
+  ResetPassword
 } from '@pages';
 
-import {
-  AppHeader,
-  Modal,
-  OrderInfo,
-  IngredientDetails,
-} from '@components';
+import { AppHeader, Modal, OrderInfo, IngredientDetails } from '@components';
 
 import { ProtectedRoute } from '../protected-route';
 import { useAppDispatch } from '../../services/store';
 
-// Импорты экшенов из слайсов
 import { loadIngredients } from '../../services/slices/ingredientsSlice';
-import { fetchUser, checkUserAuth } from '../../services/slices/userSlice';
+import { checkUserAuth } from '../../services/slices/userSlice';
 
 const App: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Для модальных окон — запоминаем предыдущий маршрут
   const previousLocation = location.state?.background || null;
 
   useEffect(() => {
     dispatch(loadIngredients());
-
-    dispatch(fetchUser())
-      .unwrap()
-      .catch(() => {
-        // Ошибки игнорируем (пользователь не авторизован)
-      })
-      .finally(() => {
-        dispatch(checkUserAuth());
-      });
+    dispatch(checkUserAuth());
   }, [dispatch]);
 
   return (
@@ -59,10 +44,11 @@ const App: FC = () => {
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
         <Route path='/feed/:orderId' element={<OrderInfo />} />
-        <Route path='/ingredients/:ingredientId' element={<IngredientDetails />} />
+        <Route
+          path='/ingredients/:ingredientId'
+          element={<IngredientDetails />}
+        />
         <Route path='/profile/orders/:orderId' element={<OrderInfo />} />
-
-        {/* Страницы только для неавторизованных */}
         <Route
           path='/login'
           element={
@@ -95,8 +81,6 @@ const App: FC = () => {
             </ProtectedRoute>
           }
         />
-
-        {/* Защищённые страницы */}
         <Route
           path='/profile'
           element={
@@ -113,12 +97,9 @@ const App: FC = () => {
             </ProtectedRoute>
           }
         />
-
-        {/* 404 */}
         <Route path='*' element={<NotFound404 />} />
       </Routes>
 
-      {/* Модальные окна */}
       {previousLocation && (
         <Routes>
           <Route

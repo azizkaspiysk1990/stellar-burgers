@@ -2,6 +2,8 @@ const path = require('path');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
   entry: path.resolve(__dirname, './src/index.tsx'),
@@ -54,7 +56,23 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html'
     }),
-    new Dotenv()
+    new Dotenv(),
+    new webpack.DefinePlugin({
+      'process.env.BURGER_API_URL': JSON.stringify(
+        'https://norma.nomoreparties.space/api'
+      )
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'public',
+          to: '',
+          globOptions: {
+            ignore: ['**/index.html']
+          }
+        }
+      ]
+    })
   ],
   resolve: {
     extensions: [
@@ -86,9 +104,18 @@ module.exports = {
     filename: 'bundle.js'
   },
   devServer: {
-    static: path.join(__dirname, './dist'),
+    static: [
+      {
+        directory: path.join(__dirname, './dist'),
+        publicPath: '/'
+      },
+      {
+        directory: path.join(__dirname, './public'),
+        publicPath: '/'
+      }
+    ],
     compress: true,
     historyApiFallback: true,
-    port: 4000
+    port: 4001
   }
 };

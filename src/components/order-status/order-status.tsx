@@ -6,6 +6,7 @@ const statusText: { [key: string]: string } = {
   pending: 'Готовится',
   done: 'Выполнен',
   created: 'Создан',
+  cancelled: 'Отменён'
 };
 
 export const OrderStatus: FC<OrderStatusProps> = ({ status }) => {
@@ -13,13 +14,16 @@ export const OrderStatus: FC<OrderStatusProps> = ({ status }) => {
 
   switch (status) {
     case 'pending':
-      textStyle = '#E52B1A';  // красный для "Готовится"
+      textStyle = '#E52B1A';
       break;
     case 'done':
-      textStyle = '#00CCCC';  // голубой для "Выполнен"
+      textStyle = '#00CCCC';
+      break;
+    case 'cancelled':
+      textStyle = '#E52B1A';
       break;
     default:
-      textStyle = '#F2F2F3';  // серый для "Создан" и других
+      textStyle = '#F2F2F3';
   }
 
   return <OrderStatusUI textStyle={textStyle} text={statusText[status]} />;

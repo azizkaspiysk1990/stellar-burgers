@@ -10,7 +10,7 @@ import {
 } from '@api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TOrder, TUser } from '@utils-types';
-import { deleteCookie, setCookie } from '../../utils/cookie';
+import { deleteCookie, setCookie, getCookie } from '../../utils/cookie';
 
 type TUserState = {
   isAuthChecked: boolean;
@@ -62,21 +62,57 @@ export const updateUser = createAsyncThunk(
   'user/update',
   async (data: Partial<TRegisterData>) => {
     const response = await updateUserApi(data);
-    return response.user;
+    return response;
   }
 );
 
-export const fetchUserOrders = createAsyncThunk('user/getOrders', async () =>
-  getOrdersApi()
+export const fetchUserOrders = createAsyncThunk(
+  'user/getOrders',
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const token = getCookie('accessToken');
+
+      const result = await getOrdersApi();
+      return result;
+    } catch (error) {
+      if (
+        (error as any)?.message === 'jwt expired' ||
+        (error as any)?.status === 401 ||
+        (error as any)?.status === 403
+      ) {
+        deleteCookie('accessToken');
+        localStorage.removeItem('refreshToken');
+
+        dispatch(setIsAuthChecked(true));
+      }
+      return rejectWithValue(
+        (error as any)?.message || 'Failed to fetch orders'
+      );
+    }
+  }
 );
 
 export const checkUserAuth = createAsyncThunk(
   'user/checkUserAuth',
   async (_, { dispatch }) => {
-    if (localStorage.getItem('accessToken')) {
-      getUserApi()
-        .then((user) => dispatch(fetchUser()))
-        .finally(() => dispatch(setIsAuthChecked(true)));
+    const token = getCookie('accessToken');
+
+    if (token) {
+      try {
+        const userData = await getUserApi();
+        dispatch(fetchUser.fulfilled(userData, '', undefined));
+        dispatch(setIsAuthChecked(true));
+      } catch (error) {
+        if (
+          (error as any)?.message === 'jwt expired' ||
+          (error as any)?.status === 403 ||
+          (error as any)?.message === 'No access token found'
+        ) {
+          deleteCookie('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
+        dispatch(setIsAuthChecked(true));
+      }
     } else {
       dispatch(setIsAuthChecked(true));
     }
@@ -96,7 +132,7 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Регистрация пользователя
+
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -109,7 +145,7 @@ const slice = createSlice({
         state.isLoading = false;
         state.error = action.error.message!;
       })
-      // Авторизация пользователя
+
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -122,17 +158,17 @@ const slice = createSlice({
         state.isLoading = false;
         state.error = action.error.message!;
       })
-      // Выход из профиля
+
       .addCase(logoutUser.pending, (state) => {
         state.userData = null;
         state.isLoading = false;
       })
-      // Загрузка данных пользователя
+
       .addCase(fetchUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
-        state.userData = action.payload.user;
+        state.userData = action.payload;
         state.isLoading = false;
         state.isAuthChecked = true;
       })
@@ -141,7 +177,7 @@ const slice = createSlice({
         state.isLoading = false;
         state.error = action.error.message!;
       })
-      //Обновление данных пользователя
+
       .addCase(updateUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -154,7 +190,7 @@ const slice = createSlice({
         state.isLoading = false;
         state.error = action.error.message!;
       })
-      // Загрузка заказов пользователя
+
       .addCase(fetchUserOrders.pending, (state) => {
         state.isLoading = true;
       })
