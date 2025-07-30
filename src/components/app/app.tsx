@@ -43,7 +43,14 @@ const App: FC = () => {
       <Routes location={previousLocation || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
-        <Route path='/feed/:orderId' element={<OrderInfo />} />
+        <Route
+          path='/feed/:orderId'
+          element={
+            <ProtectedRoute>
+              <OrderInfo />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path='/ingredients/:ingredientId'
           element={<IngredientDetails />}
@@ -112,9 +119,11 @@ const App: FC = () => {
           <Route
             path='/feed/:orderId'
             element={
-              <Modal title='Детали заказа' onClose={() => navigate(-1)}>
-                <OrderInfo />
-              </Modal>
+              <ProtectedRoute>
+                <Modal title='Детали заказа' onClose={() => navigate(-1)}>
+                  <OrderInfo />
+                </Modal>
+              </ProtectedRoute>
             }
           />
           <Route
@@ -128,9 +137,11 @@ const App: FC = () => {
           <Route
             path='/profile/orders/:orderId'
             element={
-              <Modal title='Детали заказа' onClose={() => navigate(-1)}>
-                <OrderInfo />
-              </Modal>
+              <ProtectedRoute>
+                <Modal title='Детали заказа' onClose={() => navigate(-1)}>
+                  <OrderInfo />
+                </Modal>
+              </ProtectedRoute>
             }
           />
         </Routes>
