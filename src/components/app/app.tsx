@@ -48,7 +48,14 @@ const App: FC = () => {
           path='/ingredients/:ingredientId'
           element={<IngredientDetails />}
         />
-        <Route path='/profile/orders/:orderId' element={<OrderInfo />} />
+        <Route
+          path='/profile/orders/:orderId'
+          element={
+            <ProtectedRoute>
+              <OrderInfo />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path='/login'
           element={
